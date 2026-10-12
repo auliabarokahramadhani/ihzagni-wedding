@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin RSVP - Ihza & Agni</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sage: {
+                            50: '#f4f7f4',
+                            100: '#e5ebe5',
+                            200: '#cbd7cb',
+                            300: '#a7bda7',
+                            400: '#7fa07f',
+                            500: '#618361',
+                            600: '#4c684c',
+                            700: '#3d533d',
+                            800: '#2f422f'
+                        },
+                        gold: '#C5A059',
+                    },
+                    fontFamily: {
+                        serif: ['Cormorant Garamond', 'serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #E2ECE4 0%, #F5F8F5 40%, #EFECE6 75%, #E5EBE5 100%) !important;
+            background-attachment: fixed !important;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 30px -10px rgba(76, 104, 76, 0.08);
+        }
+    </style>
+</head>
+<body class="bg-[#EEF4EF] text-stone-700 font-sans antialiased p-4 sm:p-8 min-h-screen">
+
+    <div class="max-w-6xl mx-auto space-y-6">
+        <!-- Header Dashboard -->
+        <header class="glass-card rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-4 border border-white">
+            <div class="text-center md:text-left space-y-1">
+                <span class="text-xs uppercase tracking-[0.3em] font-bold text-sage-600">The Wedding Of Ihza & Agni</span>
+                <h1 class="font-serif text-3xl sm:text-4xl font-bold text-stone-800">Dashboard Admin RSVP</h1>
+                <p class="text-xs text-stone-500"><i class="far fa-calendar-alt text-sage-600 me-1"></i> Minggu, 22 November 2026 • Gedung Dakwah Islamiyah Cisayong</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="clearAllData()" class="px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-2xl text-xs font-semibold flex items-center space-x-2 transition">
+                    <i class="fas fa-trash-alt"></i>
+                    <span>Reset Data</span>
+                </button>
+                <button onclick="exportToCSV()" class="px-5 py-2.5 bg-stone-800 hover:bg-sage-700 text-white rounded-2xl text-xs font-semibold flex items-center space-x-2 transition shadow-md">
+                    <i class="fas fa-file-excel"></i>
+                    <span>Ekspor CSV</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Stats Overview Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
+            <div class="glass-card p-5 rounded-2xl border border-white text-center">
+                <p class="text-[11px] font-semibold text-stone-500 uppercase tracking-wider">Total Respon</p>
+                <h3 id="stat-total-responses" class="font-serif text-2xl sm:text-3xl font-bold text-stone-800 mt-1">0</h3>
+            </div>
+            <div class="glass-card p-5 rounded-2xl border border-white text-center">
+                <p class="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider">Hadir</p>
+                <h3 id="stat-hadir" class="font-serif text-2xl sm:text-3xl font-bold text-emerald-600 mt-1">0</h3>
+            </div>
+            <div class="glass-card p-5 rounded-2xl border border-white text-center">
+                <p class="text-[11px] font-semibold text-amber-600 uppercase tracking-wider">Ragu-ragu</p>
+                <h3 id="stat-ragu" class="font-serif text-2xl sm:text-3xl font-bold text-amber-600 mt-1">0</h3>
+            </div>
+            <div class="glass-card p-5 rounded-2xl border border-white text-center">
+                <p class="text-[11px] font-semibold text-rose-600 uppercase tracking-wider">Tidak Hadir</p>
+                <h3 id="stat-tidak" class="font-serif text-2xl sm:text-3xl font-bold text-rose-600 mt-1">0</h3>
+            </div>
+            <div class="glass-card p-5 rounded-2xl border border-white text-center col-span-2 md:col-span-1">
+                <p class="text-[11px] font-semibold text-sage-700 uppercase tracking-wider">Total Est. Tamu</p>
+                <h3 id="stat-total-guests" class="font-serif text-2xl sm:text-3xl font-bold text-sage-800 mt-1">0 Orang</h3>
+            </div>
+        </div>
+
+        <!-- Filter & Search Controls -->
+        <div class="glass-card rounded-2xl p-4 sm:p-6 border border-white flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div class="w-full md:w-1/3 relative">
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 text-xs"></i>
+                <input type="text" id="search-input" onkeyup="filterData()" placeholder="Cari nama tamu..." 
+                       class="w-full pl-10 pr-4 py-2.5 bg-white/90 border border-stone-200 rounded-xl text-xs text-stone-800 focus:outline-none focus:ring-2 focus:ring-sage-500">
+            </div>
+            <div class="flex items-center gap-2 w-full md:w-auto overflow-x-auto">
+                <button onclick="setFilter('all')" id="btn-filter-all" class="px-4 py-2 rounded-xl text-xs font-semibold bg-stone-800 text-white transition">Semua</button>
+                <button onclick="setFilter('Hadir')" id="btn-filter-hadir" class="px-4 py-2 rounded-xl text-xs font-semibold bg-white text-stone-600 border border-stone-200 hover:bg-sage-50 transition">Hadir</button>
+                <button onclick="setFilter('Ragu-ragu')" id="btn-filter-ragu" class="px-4 py-2 rounded-xl text-xs font-semibold bg-white text-stone-600 border border-stone-200 hover:bg-sage-50 transition">Ragu-ragu</button>
+                <button onclick="setFilter('Tidak Hadir')" id="btn-filter-tidak" class="px-4 py-2 rounded-xl text-xs font-semibold bg-white text-stone-600 border border-stone-200 hover:bg-sage-50 transition">Tidak Hadir</button>
+            </div>
+        </div>
+
+        <!-- Main Content Area: Table & Add Form -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- RSVP Guest Table -->
+            <div class="lg:col-span-2 glass-card rounded-3xl p-6 border border-white space-y-4">
+                <div class="flex items-center justify-between border-b border-stone-200 pb-3">
+                    <h3 class="font-serif text-xl font-bold text-stone-800"><i class="fas fa-list-check text-sage-600 me-2"></i>Daftar Konfirmasi Tamu</h3>
+                    <span id="showing-count" class="text-[11px] text-stone-500">Menampilkan 0 tamu</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-stone-200 text-[11px] uppercase tracking-wider text-stone-500 font-semibold bg-stone-50/50">
+                                <th class="py-3 px-3">Nama Tamu</th>
+                                <th class="py-3 px-3">Status</th>
+                                <th class="py-3 px-3">Jumlah</th>
+                                <th class="py-3 px-3">Pesan & Doa</th>
+                                <th class="py-3 px-3 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="guest-table-body" class="text-xs divide-y divide-stone-100"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Manual Add Guest Form -->
+            <div class="glass-card rounded-3xl p-6 border border-white space-y-4 h-fit">
+                <h3 class="font-serif text-xl font-bold text-stone-800 border-b border-stone-200 pb-3"><i class="fas fa-user-plus text-sage-600 me-2"></i>Tambah Tamu Manual</h3>
+                
+                <form id="add-guest-form" onsubmit="handleAddGuest(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-stone-700 mb-1">Nama Tamu</label>
+                        <input type="text" id="manual-name" required placeholder="Masukkan nama tamu" 
+                               class="w-full px-4 py-2.5 bg-white/90 border border-stone-200 rounded-xl text-xs text-stone-800 focus:outline-none focus:ring-2 focus:ring-sage-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-stone-700 mb-1">Status Kehadiran</label>
+                        <select id="manual-status" required class="w-full px-4 py-2.5 bg-white/90 border border-stone-200 rounded-xl text-xs text-stone-800 focus:outline-none focus:ring-2 focus:ring-sage-500">
+                            <option value="Hadir">Hadir</option>
+                            <option value="Ragu-ragu">Ragu-ragu</option>
+                            <option value="Tidak Hadir">Tidak Hadir</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-stone-700 mb-1">Jumlah Rombongan</label>
+                        <select id="manual-guests" class="w-full px-4 py-2.5 bg-white/90 border border-stone-200 rounded-xl text-xs text-stone-800 focus:outline-none focus:ring-2 focus:ring-sage-500">
+                            <option value="1 Orang">1 Orang</option>
+                            <option value="2 Orang">2 Orang</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-stone-700 mb-1">Catatan / Pesan</label>
+                        <textarea id="manual-message" rows="2" placeholder="Catatan tambahan..." 
+                                  class="w-full px-4 py-2.5 bg-white/90 border border-stone-200 rounded-xl text-xs text-stone-800 focus:outline-none focus:ring-2 focus:ring-sage-500"></textarea>
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-stone-800 hover:bg-sage-700 text-white font-medium text-xs rounded-xl shadow-md transition duration-300">
+                        Simpan Data Tamu
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let rsvpData = JSON.parse(localStorage.getItem('wedding_rsvp_data')) || [];
+        let currentFilter = 'all';
+
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'wedding_rsvp_data') {
+                rsvpData = JSON.parse(e.newValue) || [];
+                renderDashboard();
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderDashboard();
+        });
+
+        function renderDashboard() {
+            renderStats();
+            renderTable();
+        }
+
+        function renderStats() {
+            const totalResponses = rsvpData.length;
+            const totalHadir = rsvpData.filter(d => d.status === 'Hadir').length;
+            const totalRagu = rsvpData.filter(d => d.status === 'Ragu-ragu').length;
+            const totalTidak = rsvpData.filter(d => d.status === 'Tidak Hadir').length;
+            
+            let totalGuestsCount = 0;
+            rsvpData.forEach(d => {
+                if (d.status === 'Hadir' || d.status === 'Ragu-ragu') {
+                    totalGuestsCount += (d.guests && d.guests.includes('2')) ? 2 : 1;
+                }
+            });
+
+            document.getElementById('stat-total-responses').innerText = totalResponses;
+            document.getElementById('stat-hadir').innerText = totalHadir;
+            document.getElementById('stat-ragu').innerText = totalRagu;
+            document.getElementById('stat-tidak').innerText = totalTidak;
+            document.getElementById('stat-total-guests').innerText = `${totalGuestsCount} Orang`;
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('guest-table-body');
+            const searchVal = document.getElementById('search-input').value.toLowerCase();
+            tbody.innerHTML = '';
+
+            let filtered = rsvpData.filter(item => {
+                const matchFilter = currentFilter === 'all' || item.status === currentFilter;
+                const matchSearch = item.name.toLowerCase().includes(searchVal) || (item.message && item.message.toLowerCase().includes(searchVal));
+                return matchFilter && matchSearch;
+            });
+
+            document.getElementById('showing-count').innerText = `Menampilkan ${filtered.length} dari ${rsvpData.length} tamu`;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-stone-400 italic">Belum ada data tamu undangan.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(item => {
+                let badgeClass = "bg-emerald-100 text-emerald-700";
+                if (item.status === "Ragu-ragu") badgeClass = "bg-amber-100 text-amber-700";
+                if (item.status === "Tidak Hadir") badgeClass = "bg-rose-100 text-rose-700";
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-white/60 transition";
+                tr.innerHTML = `
+                    <td class="py-3 px-3 font-semibold text-stone-800">${escapeHtml(item.name)}</td>
+                    <td class="py-3 px-3"><span class="px-2.5 py-1 rounded-md text-[10px] font-semibold ${badgeClass}">${item.status}</span></td>
+                    <td class="py-3 px-3 text-stone-600">${item.guests || '1 Orang'}</td>
+                    <td class="py-3 px-3 text-stone-500 italic max-w-xs truncate" title="${escapeHtml(item.message || '-')}">"${escapeHtml(item.message || '-')}"</td>
+                    <td class="py-3 px-3 text-center">
+                        <button onclick="deleteGuest(${item.id})" class="text-rose-500 hover:text-rose-700 transition px-2 py-1" title="Hapus">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function setFilter(status) {
+            currentFilter = status;
+            ['all', 'hadir', 'ragu', 'tidak'].forEach(f => {
+                const btn = document.getElementById(`btn-filter-${f}`);
+                if (f === status.toLowerCase() || (f === 'all' && status === 'all')) {
+                    btn.className = "px-4 py-2 rounded-xl text-xs font-semibold bg-stone-800 text-white transition";
+                } else {
+                    btn.className = "px-4 py-2 rounded-xl text-xs font-semibold bg-white text-stone-600 border border-stone-200 hover:bg-sage-50 transition";
+                }
+            });
+            renderTable();
+        }
+
+        function filterData() {
+            renderTable();
+        }
+
+        function handleAddGuest(e) {
+            e.preventDefault();
+            const name = document.getElementById('manual-name').value;
+            const status = document.getElementById('manual-status').value;
+            const guests = document.getElementById('manual-guests').value;
+            const message = document.getElementById('manual-message').value || "-";
+
+            const now = new Date();
+            const timeStr = `${now.getDate()} Okt 2026 ${now.getHours()}:${now.getMinutes() < 10 ? '0' : ''}${now.getMinutes()}`;
+
+            const newItem = {
+                id: Date.now(),
+                name: name,
+                status: status,
+                guests: status === 'Tidak Hadir' ? '0 Orang' : guests,
+                message: message,
+                time: timeStr
+            };
+
+            rsvpData.unshift(newItem);
+            localStorage.setItem('wedding_rsvp_data', JSON.stringify(rsvpData));
+            document.getElementById('add-guest-form').reset();
+            renderDashboard();
+        }
+
+        function deleteGuest(id) {
+            if (confirm("Apakah Anda yakin ingin menghapus data tamu ini?")) {
+                rsvpData = rsvpData.filter(d => d.id !== id);
+                localStorage.setItem('wedding_rsvp_data', JSON.stringify(rsvpData));
+                renderDashboard();
+            }
+        }
+
+        function clearAllData() {
+            if (confirm("Apakah Anda yakin ingin menghapus SELURUH data RSVP?")) {
+                localStorage.removeItem('wedding_rsvp_data');
+                rsvpData = [];
+                renderDashboard();
+            }
+        }
+
+        function exportToCSV() {
+            if (rsvpData.length === 0) {
+                alert("Belum ada data untuk diekspor!");
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "ID,Nama Tamu,Status Kehadiran,Jumlah Rombongan,Pesan dan Doa,Waktu Input\n";
+
+            rsvpData.forEach(row => {
+                const msg = row.message ? row.message.replace(/"/g, '""') : '-';
+                csvContent += `"${row.id}","${row.name}","${row.status}","${row.guests || '1 Orang'}","${msg}","${row.time || '-'}"\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "RSVP_Ihza_Agni_Wedding.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
